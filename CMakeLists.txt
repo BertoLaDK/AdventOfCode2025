@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION 3.27)
+project(AdventOfCode2024)
+
+set(CMAKE_CXX_STANDARD 23)
+
+set(DAYS 1)
+
+foreach(day ${DAYS})
+    add_executable(Day${day}_Part1
+            "Day ${day}/part1.cpp")
+    add_executable(Day${day}_Part2
+            "Day ${day}/part2.cpp")
+endforeach ()
