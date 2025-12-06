@@ -7,35 +7,50 @@ int dialPos = 50;
 int numberOfZeros = 0;
 
 void turnDial(char dir, int steps) {
-    int startPos = dialPos;
-    bool overflow = false;
+    int mod = steps % 100;
+    int rotations = std::floor(steps / 100.0f);
     if (dir == 'L') {
-        dialPos -= steps;
+        dialPos -= mod;
     } else {
-        dialPos += steps;
+        dialPos += mod;
     }
-    while (dialPos < 0) {
-        dialPos = 100 + dialPos;
-        if (startPos != 0 && !overflow) {
-            numberOfZeros++;
-        }
-        std::println("It passed 0");
-        overflow = true;
-    }
-    while (dialPos > 99) {
+    if (dialPos > 99) {
         dialPos = dialPos - 100;
-        if (startPos != 0 && !overflow) {
+        if (dialPos != 0) {
             numberOfZeros++;
         }
-        std::println("It passed 0");
-        overflow = true;
+    } else if (dialPos < 0) {
+        dialPos = dialPos + 100;
+        if (dialPos != 0) {
+            numberOfZeros++;
+        }
     }
-    if (dialPos == 0 && !overflow) {
+    numberOfZeros += rotations;
+    if (dialPos == 0) {
         numberOfZeros++;
-        std::println("It stopped at 0");
     }
+    std::println("Mod: {}, Rotations: {}, Steps: {} | DialPos: {}", mod, rotations, steps, dialPos);
 }
 
+
+void turnDialOneAtAtime(char dir, int steps) {
+    int step = 1;
+    if (dir == 'L') {
+        step = -1;
+    }
+    for (int i = 0; i < steps; i++) {
+        dialPos += step;
+        if (dialPos > 99) {
+            dialPos = 0;
+        }
+        if (dialPos < 0) {
+            dialPos = 100 + dialPos;
+        }
+        if (dialPos == 0) {
+            numberOfZeros++;
+        }
+    }
+}
 
 int main() {
     std::ifstream file("..\\Day 1\\input.txt");
@@ -44,7 +59,6 @@ int main() {
         char dir = str.at(0);
         int steps = std::stoi(str.substr(1, str.length()));
         turnDial(dir, steps);
-        std::println("The Dial is rotated {} to position: {}", str, dialPos);
     }
     std::println("Number of zeros = {}", numberOfZeros);
     return 0;
