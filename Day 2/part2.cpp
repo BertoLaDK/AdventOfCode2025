@@ -1,3 +1,4 @@
+#include <execution>
 #include <fstream>
 #include <iostream>
 #include <print>
@@ -10,7 +11,7 @@ int main() {
 
     std::vector<std::uint64_t> invalidIds{};
     std::string inputStr;
-    while (std::getline(file, inputStr,',')) {
+    while (std::getline(file, inputStr, ',')) {
         std::size_t index = inputStr.find_first_of('-');
         if (index == std::string::npos) {
             continue;
@@ -20,21 +21,31 @@ int main() {
 
         for (std::uint64_t i = firstNumber; i <= secondNumber; i++) {
             std::string number = std::to_string(i);
-
-            if (number.size() % 2 != 0) {
-                continue;
-            }
-
-            std::uint64_t firstHalf = std::stoull(number.substr(0,number.size()/2));
-            std::uint64_t secondHalf = std::stoull(number.substr(number.size()/2));
-            if (firstHalf == secondHalf) {
-                std::println("Invalid num: {}", number);
-                invalidIds.push_back(i);
+            for (std::size_t j = number.size() / 2; j >= 1; j--) {
+                auto pattern = number.substr(0, j);
+                auto patternLength = pattern.size();
+                float patternRepeats = static_cast<float>(number.size()) / static_cast<float>(patternLength);
+                if (std::floor(patternRepeats) != patternRepeats) {
+                    continue;
+                }
+                bool isValid = true;
+                for (std::size_t k = 1; k < number.size() / patternLength; k++) {
+                    auto partCompare = number.substr(k * patternLength, j);
+                    if (pattern != partCompare) {
+                        isValid = false;
+                        break;
+                    }
+                }
+                if (isValid) {
+                    invalidIds.push_back(i);
+                    std::println("Is Valid: {}", i);
+                    break;
+                }
             }
         }
     }
     std::uint64_t invalidSum = 0;
-    for (const auto id : invalidIds) {
+    for (const auto id: invalidIds) {
         invalidSum += id;
     }
     std::println("Sum is {}", invalidSum);
